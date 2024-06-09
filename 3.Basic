@@ -1,0 +1,62 @@
+//Simple wire
+module top_module( input in, output out );
+ assign out = in;
+endmodule
+//Four wires
+module top_module( 
+    input a,b,c,
+    output w,x,y,z );
+
+    assign w = a;
+    assign x = b;
+    assign y = b;
+    assign z = c;
+    
+endmodule
+//Four wires - vector 
+module top_module( 
+    input a,b,c,
+    output w,x,y,z );
+
+    assign {w,x,y,z} = {a,b,b,c};
+
+endmodule
+
+//Inverter
+module top_module( input in, output out );
+   assign out = ~in;
+endmodule
+
+//AND gate
+module top_module( 
+    input a, 
+    input b, 
+    output out );
+
+    assign out = a&b;
+
+endmodule
+
+//NOR gate
+module top_module( 
+    input a, 
+    input b, 
+    output out );
+
+    assign out = ~(a|b);
+
+endmodule
+
+//XNOR gate
+module top_module( 
+    input a, 
+    input b, 
+    output out );
+
+    assign out = ~(a^b);
+
+endmodule
+
+//Declaring wires
+
+
