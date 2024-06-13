@@ -100,3 +100,99 @@ module top_module ( input [1:0] A, input [1:0] B, output z );
     assign z = (A==B) ? 1'b1:1'b0;
 
 endmodule
+
+//Simple circuit A
+module top_module (input x, input y, output z);
+
+    assign z = (x^y)&x;
+
+endmodule
+
+//Simple circuit B
+module top_module ( input x, input y, output z );
+
+    assign z = ~(x^y);
+
+endmodule
+
+//Combine circuits A and B
+module top_module (input x, input y, output z);
+
+    wire IA,IB;
+    assign IA = (x^y)&x;
+    assign IB = (x==y);
+    assign z = (IA|IB)^(IA&IB);
+
+endmodule
+
+//Ring or vibrate?
+module top_module (
+    input ring,
+    input vibrate_mode,
+    output ringer,       // Make sound
+    output motor         // Vibrate
+);
+
+    assign ringer = (~vibrate_mode) & ring;
+    assign motor = vibrate_mode & ring;
+
+endmodule
+
+//Thermostat
+module top_module (
+    input too_cold,
+    input too_hot,
+    input mode,
+    input fan_on,
+    output heater,
+    output aircon,
+    output fan
+); 
+
+    assign heater = too_cold & mode;
+    assign aircon = too_hot & (~mode);
+    assign fan = fan_on | heater | aircon;
+
+endmodule
+
+//3-bit population count
+module top_module( 
+    input [2:0] in,
+    output [1:0] out );
+
+    always @(*) begin
+        out = 2'b00;
+        for (int i=0;i<3;i=i+1) begin
+            out = out + in[i];
+        end
+    end
+
+endmodule
+
+//Gates and vectors
+module top_module( 
+    input [3:0] in,
+    output [2:0] out_both,
+    output [3:1] out_any,
+    output [3:0] out_different );
+
+    assign out_both = in[3:1] & in[2:0];
+    assign out_any = in[3:1] | in[2:0];
+    assign out_different = {in[0],in[3:1]} ^ in[3:0];
+
+endmodule
+
+//Even longer vectors
+module top_module( 
+    input [99:0] in,
+    output [98:0] out_both,
+    output [99:1] out_any,
+    output [99:0] out_different );
+
+    assign out_both = in[99:1] & in[98:0];
+    assign out_any = in[99:1] | in[98:0];
+    assign out_different = {in[0],in[99:1]} ^ in[99:0];
+
+endmodule
+
+
