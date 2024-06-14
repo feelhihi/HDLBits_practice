@@ -1,0 +1,61 @@
+//Mux2to1
+module top_module( 
+    input a, b, sel,
+    output out ); 
+
+    assign out = (sel) ? b:a;
+
+endmodule
+
+//2-to-1 bus multiplexer
+module top_module( 
+    input [99:0] a, b,
+    input sel,
+    output [99:0] out );
+
+    assign out = (sel) ? b:a ;
+
+endmodule
+
+//9-to-1 multiplexer
+module top_module( 
+    input [15:0] a, b, c, d, e, f, g, h, i,
+    input [3:0] sel,
+    output [15:0] out );
+
+    always@(*)begin
+        case(sel)
+        	4'd0: out = a;
+            4'd1: out = b;
+            4'd2: out = c;
+            4'd3: out = d;
+            4'd4: out = e;
+            4'd5: out = f;
+            4'd6: out = g;
+            4'd7: out = h;
+            4'd8: out = i;
+            default:out=16'hffff;
+        endcase
+    end
+    
+endmodule
+
+//256-to-1 multiplexer
+module top_module( 
+    input [255:0] in,
+    input [7:0] sel,
+    output out );
+
+    assign out = in[sel];
+
+endmodule
+
+//256-to-1 4-bit multiplexer
+module top_module( 
+    input [1023:0] in,
+    input [7:0] sel,
+    output [3:0] out );
+    //assign out = {in[sel*4+3],in[sel*4 +2],in[sel*4 +1],in[sel*4]};
+    //assign out = in[sel*4 +: 4]; //verilog 2001
+    assign out = in >> sel*4;
+endmodule
