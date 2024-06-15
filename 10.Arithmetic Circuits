@@ -7,4 +7,107 @@ module top_module(
     assign sum = a^b;
 endmodule
 
-//
+//Full adder
+module top_module( 
+    input a, b, cin,
+    output cout, sum );
+
+    assign {cout, sum} = a+b+cin;
+
+endmodule
+
+//3-bit binary adder
+module top_module( 
+    input [2:0] a, b,
+    input cin,
+    output [2:0] cout,
+    output [2:0] sum );
+
+    add inst0(a[0],b[0],cin,cout[0],sum[0]);
+    add inst1(a[1],b[1],cout[0],cout[1],sum[1]);
+    add inst2(a[2],b[2],cout[1],cout[2],sum[2]);
+
+endmodule
+
+
+
+module add(
+    input a,b,cin,
+    output cout,sum
+);
+
+    assign {cout,sum} = a+b+cin;
+
+endmodule
+
+//Adder -method 1
+module top_module (
+    input [3:0] x,
+    input [3:0] y, 
+    output [4:0] sum);
+
+    wire [2:0] cout;
+    FA inst0(.a(x[0]), .b(y[0]), .cin(1'b0), .cout(cout[0]), .sum(sum[0]));
+    FA inst1(.a(x[1]), .b(y[1]), .cin(cout[0]), .cout(cout[1]), .sum(sum[1]));
+    FA inst2(.a(x[2]), .b(y[2]), .cin(cout[1]), .cout(cout[2]), .sum(sum[2]));
+    FA inst3(.a(x[3]), .b(y[3]), .cin(cout[2]), .cout(sum[4]), .sum(sum[3]));
+
+endmodule
+
+
+
+module FA (
+    input a, b, cin,
+    output cout, sum);
+    
+    assign {cout,sum} = a+b+cin;
+
+endmodule
+
+//Adder -method 1
+module top_module (
+    input [3:0] x,
+    input [3:0] y, 
+    output [4:0] sum);
+    
+    assign sum = x+y;
+
+endmodule
+
+//Signed addition overflow
+module top_module (
+    input [7:0] a,
+    input [7:0] b,
+    output [7:0] s,
+    output overflow
+); //
+ 
+    assign s = a+b;
+    assign overflow = (a[7]&b[7]& ~s[7])|(~a[7] & ~b[7] & s[7]); //正負數, 最高為相同且總和不同
+
+endmodule
+
+//100-bit binary adder
+module top_module( 
+    input [99:0] a, b,
+    input cin,
+    output cout,
+    output [99:0] sum );
+
+    assign {cout,sum} = a+b+cin;
+
+endmodule
+
+//4-digit BCD adder
+module top_module ( 
+    input [15:0] a, b,
+    input cin,
+    output cout,
+    output [15:0] sum );
+    wire [2:0] cout_in;
+    bcd_fadd inst1(a[3:0],b[3:0],cin,cout_in[0],sum[3:0]);
+    bcd_fadd inst2(a[7:4],b[7:4],cout_in[0],cout_in[1],sum[7:4]);
+    bcd_fadd inst3(a[11:8],b[11:8],cout_in[1],cout_in[2],sum[11:8]);
+    bcd_fadd inst4(a[15:12],b[15:12],cout_in[2],cout,sum[15:12]);
+endmodule
+
