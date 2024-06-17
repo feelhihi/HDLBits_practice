@@ -1,0 +1,335 @@
+//Simple FSM 1 (asynchronous reset)
+module top_module(
+    input clk,
+    input areset,    // Asynchronous reset to state B
+    input in,
+    output out);//  
+
+    parameter A=1'b0, B=1'b1; 
+    reg state, next_state;
+   
+    // step 1 轉移條件
+    always @(*) begin    // This is a combinational always block
+        // State transition logic
+        case (state)
+            B: next_state = (in==1'b1) ? B:A;
+            A: next_state = (in==1'b1) ? A:B;
+        endcase
+    end
+
+    // step 2 狀態轉移
+    always @(posedge clk, posedge areset) begin    // This is a sequential always block
+        // State flip-flops with asynchronous reset
+        state <= (areset) ? B:next_state ;
+    end
+
+    // step 3 輸出
+    assign out = (state == B);
+
+endmodule
+
+//Fsm1s
+// Note the Verilog-1995 module declaration syntax here:
+module top_module(clk, reset, in, out);
+    input clk;
+    input reset;    // Synchronous reset to state B
+    input in;
+    output out;//  
+    reg out;
+
+    // Fill in state name declarations
+ parameter A=1'b0, B=1'b1; 
+    reg state, next_state;
+
+    // step 1 轉移條件
+    always @(*) begin
+        case (state)
+            B: next_state = (in==1'b1) ? B:A;
+            A: next_state = (in==1'b1) ? A:B;
+        endcase
+    end
+
+    // step 2 狀態轉移
+    always @(posedge clk) begin
+        state <= (reset) ? B:next_state ;
+    end
+
+    // step 3 輸出; 建議用時序邏輯, 用組合邏輯容易產生毛刺
+    always @(posedge clk) begin
+        if (reset)
+            out <= 1'b1;
+        else if (next_state==B)
+            out <= 1'b1;
+        else
+            out <= 1'b0;
+    end
+endmodule
+
+//Simple FSM 2 (asynchronous reset)
+module top_module(
+    input clk,
+    input areset,    // Asynchronous reset to OFF
+    input j,
+    input k,
+    output out); //  
+
+    parameter OFF=0, ON=1; 
+    reg state, next_state;
+
+    // step 1 轉移條件
+    always @(*) begin
+        case (state)
+            OFF: next_state = (j==1'b1) ? ON:OFF;
+            ON: next_state = (k==1'b1) ? OFF:ON;
+        endcase
+    end
+
+    // step 2 狀態轉移
+    always @(posedge clk, posedge areset) begin
+        state <= (areset) ? OFF:next_state ;
+    end
+
+    // step 3 輸出; 建議用時序邏輯, 用組合邏輯容易產生毛刺
+    always @(posedge clk, posedge areset) begin
+        if (areset)
+            out <= 1'b0;
+        else if (next_state==OFF)
+            out <= 1'b0;
+        else
+            out <= 1'b1;
+    end
+endmodule
+
+//Simple FSM 2 (synchronous reset)
+module top_module(
+    input clk,
+    input reset,    // Synchronous reset to OFF
+    input j,
+    input k,
+    output out); //  
+
+    parameter OFF=0, ON=1; 
+    reg state, next_state;
+
+    // step 1 轉移條件
+    always @(*) begin
+        case (state)
+            OFF: next_state = (j==1'b1) ? ON:OFF;
+            ON: next_state = (k==1'b1) ? OFF:ON;
+        endcase
+    end
+
+    // step 2 狀態轉移
+    always @(posedge clk) begin
+        state <= (reset) ? OFF:next_state ;
+    end
+
+    // step 3 輸出; 建議用時序邏輯, 用組合邏輯容易產生毛刺
+    always @(posedge clk) begin
+        if (reset)
+            out <= 1'b0;
+        else if (next_state==OFF)
+            out <= 1'b0;
+        else
+            out <= 1'b1;
+    end
+
+endmodule
+
+//Simple state transitions 3
+module top_module(
+    input in,
+    input [1:0] state,
+    output [1:0] next_state,
+    output out); //
+
+    parameter A=2'd0, B=2'd1, C=2'd2, D=2'd3;
+
+    // State transition logic: next_state = f(state, in)
+    always @(*) begin
+        case (state)
+            A: next_state = (in) ? B:A;
+            B: next_state = (in) ? B:C;
+            C: next_state = (in) ? D:A;
+            D: next_state = (in) ? B:C;
+        endcase
+    end
+
+    // Output logic:  out = f(state) for a Moore state machine
+    assign out = (state==D); //no clk
+
+endmodule
+
+//Simple one-hot state transitions 3
+module top_module(
+    input in,
+    input [3:0] state,
+    output [3:0] next_state,
+    output out); //
+
+    parameter A=0, B=1, C=2, D=3;
+
+    // State transition logic: Derive an equation for each state flip-flop.
+    assign next_state[A] = (state[A]&~in)|(state[C]&~in);
+    assign next_state[B] = (state[A]&in)|(state[B]&in)|(state[D]&in);
+    assign next_state[C] = (state[B]&~in)|(state[D]&~in);
+    assign next_state[D] = (state[C]&in);
+
+    // Output logic: 
+    assign out = state[D];
+
+endmodule
+
+//Simple FSM 3 (asynchronous reset)
+module top_module(
+    input clk,
+    input in,
+    input areset,
+    output out); //
+
+    parameter A=2'd0, B=2'd1, C=2'd2, D=2'd3; 
+    reg [1:0] state, next_state;
+
+    // State transition logic
+    // step 1 轉移條件
+    always @(*) begin
+        case (state)
+            A: next_state = (in) ? B:A;
+            B: next_state = (in) ? B:C;
+            C: next_state = (in) ? D:A;
+            D: next_state = (in) ? B:C;
+        endcase
+    end
+
+    // State flip-flops with asynchronous reset
+    // step 2 狀態轉移
+    always @(posedge clk, posedge areset) begin
+        state <= (areset) ? A:next_state ;
+    end
+    
+    // Output logic
+    // step 3 輸出; 建議用時序邏輯, 用組合邏輯容易產生毛刺
+    always @(posedge clk, posedge areset) begin
+        if (areset)
+            out <= 1'b0;
+        else if (next_state==D)
+            out <= 1'b1;
+        else
+            out <= 1'b0;
+    end
+
+endmodule
+
+//Simple FSM 3 (synchronous reset)
+module top_module(
+    input clk,
+    input in,
+    input reset,
+    output out); //
+
+    parameter A=2'd0, B=2'd1, C=2'd2, D=2'd3; 
+    reg [1:0] state, next_state;
+
+    // State transition logic
+    // step 1 轉移條件
+    always @(*) begin
+        case (state)
+            A: next_state = (in) ? B:A;
+            B: next_state = (in) ? B:C;
+            C: next_state = (in) ? D:A;
+            D: next_state = (in) ? B:C;
+        endcase
+    end
+
+    // State flip-flops with asynchronous reset
+    // step 2 狀態轉移
+    always @(posedge clk) begin
+        state <= (reset) ? A:next_state ;
+    end
+    
+    // Output logic
+    // step 3 輸出; 建議用時序邏輯, 用組合邏輯容易產生毛刺
+    always @(posedge clk) begin
+        if (reset)
+            out <= 1'b0;
+        else if (next_state==D)
+            out <= 1'b1;
+        else
+            out <= 1'b0;
+    end
+
+endmodule
+
+//Design a Moore FSM
+module top_module (
+    input clk,
+    input reset,
+    input [3:1] s,
+    output fr3,
+    output fr2,
+    output fr1,
+    output dfr
+); 
+
+    parameter A=2'd0, B=2'd1, C=2'd2, D=2'd3; //對應 0->S1 , S1->S2 . S2->S3 , >S3
+    reg [1:0] state, next_state;
+    
+
+    
+    // State transition logic
+    // step 2 轉移條件
+    always @(*) begin //狀態圖
+        case (state)
+            A: next_state = (s==3'b001) ? B:A;
+            B: next_state = (s==3'b011) ? C:((s==3'b000) ? A:B);
+            C: next_state = (s==3'b111) ? D:((s==3'b001) ? B:C);
+            D: next_state = (s==3'b011) ? C:D;
+        endcase
+    end
+
+    // State flip-flops with asynchronous reset
+    // step 1 狀態轉移
+    always @(posedge clk) begin
+        state <= (reset) ? A:next_state ;
+    end
+    
+    // Output logic
+    // step 3 輸出; 建議用時序邏輯, 用組合邏輯容易產生毛刺
+    always @(posedge clk) begin
+        if (reset) begin
+            fr1 <= 1'b1;
+            fr2 <= 1'b1;
+            fr3 <= 1'b1;
+            dfr <= 1'b1;
+        end 
+        else begin
+            case (next_state)
+                A: begin
+                    fr1 <= 1'b1;
+                    fr2 <= 1'b1;
+                    fr3 <= 1'b1;
+                    dfr <= 1'b1;
+                end
+                B: begin
+                    fr1 <= 1'b1;
+                    fr2 <= 1'b1;
+                    fr3 <= 1'b0;
+                    dfr <= (state==A) ? 0:((state==B) ? dfr:1); //水位(連續)下降或上升
+                end
+                C: begin
+                    fr1 <= 1'b1;
+                    fr2 <= 1'b0;
+                    fr3 <= 1'b0;
+                    dfr <= (state==B) ? 0:((state==C) ? dfr:1);
+                end
+                D: begin
+                    fr1 <= 1'b0;
+                    fr2 <= 1'b0;
+                    fr3 <= 1'b0;
+                    dfr <= 1'b0;
+                end
+            endcase
+        end
+    end
+    
+endmodule
