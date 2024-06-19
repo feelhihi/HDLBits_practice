@@ -1,0 +1,92 @@
+//Bugs mux2
+module top_module (
+    input sel,
+    input [7:0] a,
+    input [7:0] b,
+    output [7:0] out   );
+
+    assign out = (sel) ? a:b ;
+
+endmodule
+
+//Bugs nand3
+module top_module (input a, input b, input c, output out);//
+
+    wire w; //fixed
+    andgate inst1 (
+        .out(w),
+        .a(a),
+        .b(b),
+        .c(c),
+        .d(1),
+        .e(1)
+    ); //fixed
+ 
+    assign out = ~w;
+    
+endmodule
+
+//Bugs mux4
+module top_module (
+    input [1:0] sel,
+    input [7:0] a,
+    input [7:0] b,
+    input [7:0] c,
+    input [7:0] d,
+    output [7:0] out  ); //
+
+    wire [7:0] mux0, mux1; //fixed
+    mux2 mux_0 ( sel[0],    a,    b, mux0 );
+    mux2 mux_1 ( sel[0],    c,    d, mux1 ); //fixed
+    mux2 mux_2 ( sel[1], mux0, mux1,  out );
+
+endmodule
+
+//Bugs addsubz
+// synthesis verilog_input_version verilog_2001
+module top_module ( 
+    input do_sub,
+    input [7:0] a,
+    input [7:0] b,
+    output reg [7:0] out,
+    output reg result_is_zero
+);//
+
+    always @(*) begin
+        case (do_sub)
+          0: out = a+b;
+          1: out = a-b;
+        endcase
+
+
+        result_is_zero = (!out) ? 1:0 ; //fixed
+    end
+
+endmodule
+
+//Case statement
+module top_module (
+    input [7:0] code,
+    output reg [3:0] out,
+    output reg valid );//fixed
+    
+    always @(*) begin
+  valid = 1; //fixed
+        case (code)
+            8'h45: out = 0;
+            8'h16: out = 1;
+            8'h1e: out = 2;
+            8'h26: out = 3; //fixed
+            8'h25: out = 4;
+            8'h2e: out = 5;
+            8'h36: out = 6;
+            8'h3d: out = 7;
+            8'h3e: out = 8;
+            8'h46: out = 9; //fixed
+            default: begin
+                valid = 0;
+                out = 0; //fixed
+            end
+        endcase
+    end
+endmodule
